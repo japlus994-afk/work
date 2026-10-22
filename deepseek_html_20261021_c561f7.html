@@ -1,0 +1,384 @@
+!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Табель учёта рабочего времени</title>
+<style>
+/* ... (стили остаются точно такими же) ... */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh; padding: 20px; color: #333;
+}
+.container {
+  max-width: 900px; margin: 0 auto; background: #fff;
+  border-radius: 16px; box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  padding: 24px;
+}
+.header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 20px; gap: 10px; flex-wrap: wrap;
+}
+h1 { font-size: 22px; color: #333; }
+.month-nav { display: flex; align-items: center; gap: 12px; }
+.month-nav button {
+  border: none; background: #667eea; color: #fff;
+  width: 36px; height: 36px; border-radius: 8px;
+  cursor: pointer; font-size: 18px; transition: 0.2s;
+}
+.month-nav button:hover { background: #5568d3; }
+.month-title { font-size: 18px; font-weight: 600; min-width: 160px; text-align: center; }
+.calendar { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+.weekday { text-align: center; font-weight: 600; color: #888; font-size: 13px; padding: 8px 0; }
+.day {
+  aspect-ratio: 1 / 1; border: 2px solid #e5e7eb; border-radius: 8px;
+  padding: 6px; cursor: pointer; display: flex; flex-direction: column;
+  justify-content: space-between; transition: 0.2s; min-height: 64px; background: #fafbfc;
+}
+.day:hover { border-color: #667eea; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(102,126,234,0.2); }
+.day.empty { visibility: hidden; cursor: default; }
+.day.today { border-color: #f59e0b; }
+.day.has-data { background: #eff6ff; }
+.day.weekend { background: #fef3f2; }
+.day-num { font-weight: 600; font-size: 14px; color: #555; }
+.day-data { font-size: 11px; display: flex; flex-direction: column; gap: 1px; text-align: right; }
+.day-h { color: #2563eb; font-weight: 600; }
+.night-h { color: #7c3aed; font-weight: 600; }
+.summary { margin-top: 24px; display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; }
+.stat { background: #f9fafb; border-radius: 12px; padding: 16px; text-align: center; border: 2px solid #e5e7eb; }
+.stat-label { font-size: 12px; color: #666; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+.stat-value { font-size: 26px; font-weight: 700; }
+.stat.day .stat-value { color: #2563eb; }
+.stat.night .stat-value { color: #7c3aed; }
+.stat.total .stat-value { color: #059669; }
+.stat.days .stat-value { color: #f59e0b; }
+.legend { display: flex; gap: 16px; margin-top: 16px; font-size: 13px; color: #666; flex-wrap: wrap; }
+.legend span::before { content: ''; display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: middle; }
+.legend .l-day::before { background: #2563eb; }
+.legend .l-night::before { background: #7c3aed; }
+.actions { margin-top: 16px; display: flex; gap: 10px; flex-wrap: wrap; }
+.actions button { padding: 10px 16px; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 500; transition: 0.2s; }
+.btn-secondary { background: #e5e7eb; color: #333; }
+.btn-secondary:hover { background: #d1d5db; }
+.btn-danger { background: #fee2e2; color: #b91c1c; }
+.btn-danger:hover { background: #fecaca; }
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 100; padding: 20px; }
+.modal-overlay.active { display: flex; }
+.modal { background: #fff; border-radius: 16px; padding: 24px; width: 100%; max-width: 380px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+.modal h3 { font-size: 18px; margin-bottom: 16px; }
+.field { margin-bottom: 14px; }
+.field label { display: block; font-size: 13px; color: #555; margin-bottom: 6px; font-weight: 500; }
+.field input { width: 100%; padding: 10px 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 16px; outline: none; transition: 0.2s; }
+.field input:focus { border-color: #667eea; }
+.modal-actions { display: flex; gap: 8px; margin-top: 20px; }
+.modal-actions button { flex: 1; padding: 10px; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 500; transition: 0.2s; }
+.btn-primary { background: #667eea; color: #fff; }
+.btn-primary:hover { background: #5568d3; }
+@media (max-width: 600px) {
+  .container { padding: 16px; }
+  .day { min-height: 50px; padding: 4px; }
+  .day-num { font-size: 12px; }
+  .day-data { font-size: 9px; }
+  h1 { font-size: 18px; }
+  .month-title { font-size: 16px; min-width: 130px; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>📋 Табель учёта</h1>
+    <div class="month-nav">
+      <button id="prevBtn">‹</button>
+      <div class="month-title" id="monthTitle"></div>
+      <button id="nextBtn">›</button>
+    </div>
+  </div>
+
+  <div class="calendar" id="calendar"></div>
+
+  <div class="legend">
+    <span class="l-day">Дневные</span>
+    <span class="l-night">Ночные</span>
+  </div>
+
+  <div class="summary">
+    <div class="stat day">
+      <div class="stat-label">Дневные</div>
+      <div class="stat-value" id="totalDay">0</div>
+    </div>
+    <div class="stat night">
+      <div class="stat-label">Ночные</div>
+      <div class="stat-value" id="totalNight">0</div>
+    </div>
+    <div class="stat total">
+      <div class="stat-label">Всего часов</div>
+      <div class="stat-value" id="totalAll">0</div>
+    </div>
+    <div class="stat days">
+      <div class="stat-label">Рабочих дней</div>
+      <div class="stat-value" id="workDays">0</div>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button class="btn-secondary" id="todayBtn">Сегодня</button>
+    <button class="btn-secondary" id="exportBtn">Экспорт CSV</button>
+    <button class="btn-danger" id="clearBtn">Очистить месяц</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <h3 id="modalTitle"></h3>
+    <div class="field">
+      <label>Дневные часы</label>
+      <input type="number" id="dayInput" min="0" max="24" step="0.5" value="0">
+    </div>
+    <div class="field">
+      <label>Ночные часы</label>
+      <input type="number" id="nightInput" min="0" max="24" step="0.5" value="0">
+    </div>
+    <div class="modal-actions">
+      <button class="btn-danger" id="deleteBtn">Удалить</button>
+      <button class="btn-secondary" id="cancelBtn">Отмена</button>
+      <button class="btn-primary" id="saveBtn">Сохранить</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+  // --- 1. ИМПОРТ И НАСТРОЙКА FIREBASE ---
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+  import { getFirestore, doc, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCOtlo_7bXqG1CRt6TgFY05a3XHnuG8r3s",
+    authDomain: "my-timesheet-536eb.firebaseapp.com",
+    databaseURL: "https://my-timesheet-536eb-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "my-timesheet-536eb",
+    storageBucket: "my-timesheet-536eb.firebasestorage.app",
+    messagingSenderId: "638341755889",
+    appId: "1:638341755889:web:6534e57e1a270e7bbd0a50"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const docRef = doc(db, "timesheets", "main-tabel");
+
+  // --- 2. ПЕРЕМЕННЫЕ И ЛОГИКА ---
+  const monthNames = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+  const weekdays = ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
+
+  let currentDate = new Date();
+  let viewYear = currentDate.getFullYear();
+  let viewMonth = currentDate.getMonth();
+  let selectedKey = null;
+  let data = {}; // Данные будут загружаться из Firebase
+
+  // Функция сохранения данных в облако Firebase
+  async function saveToCloud() {
+    try {
+      await setDoc(docRef, data);
+    } catch (e) {
+      console.error("Ошибка сохранения в Firebase: ", e);
+      alert("Не удалось сохранить данные. Проверьте интернет.");
+    }
+  }
+
+  // Подписка на изменения в реальном времени
+  onSnapshot(docRef, (docSnap) => {
+    if (docSnap.exists()) {
+      data = docSnap.data();
+    } else {
+      data = {}; // Если база пустая
+    }
+    render(); // Перерисовываем календарь при получении данных
+  });
+
+  // --- 3. РЕНДЕР И ИНТЕРФЕЙС ---
+  function key(y, m, d) { return `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`; }
+  function round(n) { return Math.round(n * 100) / 100; }
+
+  function render() {
+    document.getElementById('monthTitle').textContent = `${monthNames[viewMonth]} ${viewYear}`;
+    const calendar = document.getElementById('calendar');
+    calendar.innerHTML = '';
+
+    weekdays.forEach(w => {
+      const el = document.createElement('div');
+      el.className = 'weekday';
+      el.textContent = w;
+      calendar.appendChild(el);
+    });
+
+    const firstDay = new Date(viewYear, viewMonth, 1);
+    const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
+    const startOffset = (firstDay.getDay() + 6) % 7;
+
+    for (let i = 0; i < startOffset; i++) {
+      const el = document.createElement('div');
+      el.className = 'day empty';
+      calendar.appendChild(el);
+    }
+
+    const today = new Date();
+    const isCurrentMonth = today.getFullYear() === viewYear && today.getMonth() === viewMonth;
+
+    for (let d = 1; d <= daysInMonth; d++) {
+      const el = document.createElement('div');
+      el.className = 'day';
+      const dow = new Date(viewYear, viewMonth, d).getDay();
+      if (dow === 0 || dow === 6) el.classList.add('weekend');
+      if (isCurrentMonth && today.getDate() === d) el.classList.add('today');
+
+      const k = key(viewYear, viewMonth, d);
+      const rec = data[k];
+      if (rec && (rec.day > 0 || rec.night > 0)) el.classList.add('has-data');
+
+      const numDiv = document.createElement('div');
+      numDiv.className = 'day-num';
+      numDiv.textContent = d;
+      el.appendChild(numDiv);
+
+      const dataDiv = document.createElement('div');
+      dataDiv.className = 'day-data';
+      if (rec) {
+        if (rec.day > 0) {
+          const s = document.createElement('div');
+          s.className = 'day-h';
+          s.textContent = `Д ${rec.day}`;
+          dataDiv.appendChild(s);
+        }
+        if (rec.night > 0) {
+          const s = document.createElement('div');
+          s.className = 'night-h';
+          s.textContent = `Н ${rec.night}`;
+          dataDiv.appendChild(s);
+        }
+      }
+      el.appendChild(dataDiv);
+      el.addEventListener('click', () => openModal(d));
+      calendar.appendChild(el);
+    }
+
+    updateSummary();
+  }
+
+  function updateSummary() {
+    let totalDay = 0, totalNight = 0, workDays = 0;
+    const prefix = `${viewYear}-${String(viewMonth+1).padStart(2,'0')}-`;
+    for (const k in data) {
+      if (k.startsWith(prefix)) {
+        const rec = data[k];
+        if (rec.day > 0 || rec.night > 0) workDays++;
+        totalDay += rec.day || 0;
+        totalNight += rec.night || 0;
+      }
+    }
+    document.getElementById('totalDay').textContent = round(totalDay);
+    document.getElementById('totalNight').textContent = round(totalNight);
+    document.getElementById('totalAll').textContent = round(totalDay + totalNight);
+    document.getElementById('workDays').textContent = workDays;
+  }
+
+  function openModal(d) {
+    selectedKey = key(viewYear, viewMonth, d);
+    const rec = data[selectedKey] || { day: 0, night: 0 };
+    document.getElementById('modalTitle').textContent = `${d} ${monthNames[viewMonth].toLowerCase()} ${viewYear}`;
+    document.getElementById('dayInput').value = rec.day || 0;
+    document.getElementById('nightInput').value = rec.night || 0;
+    document.getElementById('modal').classList.add('active');
+    setTimeout(() => document.getElementById('dayInput').focus(), 50);
+  }
+
+  function closeModal() {
+    document.getElementById('modal').classList.remove('active');
+    selectedKey = null;
+  }
+
+  // --- 4. ОБРАБОТЧИКИ КНОПОК ---
+  document.getElementById('saveBtn').addEventListener('click', () => {
+    if (!selectedKey) return;
+    const day = parseFloat(document.getElementById('dayInput').value) || 0;
+    const night = parseFloat(document.getElementById('nightInput').value) || 0;
+    
+    if (day === 0 && night === 0) delete data[selectedKey];
+    else data[selectedKey] = { day, night };
+    
+    saveToCloud(); // Отправляем в Firebase
+    closeModal();
+  });
+
+  document.getElementById('deleteBtn').addEventListener('click', () => {
+    if (selectedKey) { 
+      delete data[selectedKey]; 
+      saveToCloud(); 
+    }
+    closeModal();
+  });
+
+  document.getElementById('cancelBtn').addEventListener('click', closeModal);
+  document.getElementById('modal').addEventListener('click', (e) => {
+    if (e.target.id === 'modal') closeModal();
+  });
+
+  document.getElementById('prevBtn').addEventListener('click', () => {
+    viewMonth--;
+    if (viewMonth < 0) { viewMonth = 11; viewYear--; }
+    render();
+  });
+  document.getElementById('nextBtn').addEventListener('click', () => {
+    viewMonth++;
+    if (viewMonth > 11) { viewMonth = 0; viewYear++; }
+    render();
+  });
+  document.getElementById('todayBtn').addEventListener('click', () => {
+    const now = new Date();
+    viewYear = now.getFullYear();
+    viewMonth = now.getMonth();
+    render();
+  });
+
+  document.getElementById('clearBtn').addEventListener('click', () => {
+    if (!confirm('Удалить все записи за этот месяц?')) return;
+    const prefix = `${viewYear}-${String(viewMonth+1).padStart(2,'0')}-`;
+    for (const k in data) if (k.startsWith(prefix)) delete data[k];
+    saveToCloud();
+  });
+
+  document.getElementById('exportBtn').addEventListener('click', () => {
+    const prefix = `${viewYear}-${String(viewMonth+1).padStart(2,'0')}-`;
+    let csv = 'Дата;Дневные;Ночные;Всего\n';
+    let td = 0, tn = 0;
+    const days = Object.keys(data).filter(k => k.startsWith(prefix)).sort();
+    days.forEach(k => {
+      const r = data[k];
+      td += r.day || 0; tn += r.night || 0;
+      csv += `${k};${r.day || 0};${r.night || 0};${(r.day||0)+(r.night||0)}\n`;
+    });
+    csv += `ИТОГО;${td};${tn};${td+tn}\n`;
+    const blob = new Blob(["\ufeff" + csv], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `табель_${viewYear}-${String(viewMonth+1).padStart(2,'0')}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+
+  document.getElementById('dayInput').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') document.getElementById('nightInput').focus();
+  });
+  document.getElementById('nightInput').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') document.getElementById('saveBtn').click();
+  });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+
+  // Первый запуск рендера (пока пустой, данные подтянутся из Firebase сами)
+  render();
+</script>
+</body>
+</html>
