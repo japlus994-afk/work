@@ -7,7 +7,6 @@
 <style>
 /* --- ПЕРЕМЕННЫЕ ТЕМ --- */
 :root {
-  /* Светлая тема (по умолчанию) */
   --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   --card-bg: #ffffff;
   --text-main: #333333;
@@ -27,9 +26,7 @@
   --btn-danger-text: #b91c1c;
   --modal-shadow: 0 20px 60px rgba(0,0,0,0.3);
 }
-
 [data-theme="dark"] {
-  /* Тёмная тема */
   --bg-gradient: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
   --card-bg: #1e1e24;
   --text-main: #f3f4f6;
@@ -49,9 +46,7 @@
   --btn-danger-text: #fca5a5;
   --modal-shadow: 0 20px 60px rgba(0,0,0,0.8);
 }
-
 [data-theme="ocean"] {
-  /* Океан */
   --bg-gradient: linear-gradient(135deg, #2193b0 0%, #6dd5ed 100%);
   --card-bg: #ffffff;
   --text-main: #1e3a8a;
@@ -71,9 +66,7 @@
   --btn-danger-text: #b91c1c;
   --modal-shadow: 0 20px 60px rgba(0,0,0,0.3);
 }
-
 [data-theme="sunset"] {
-  /* Закат */
   --bg-gradient: linear-gradient(135deg, #ff7e5f 0%, #feb47b 100%);
   --card-bg: #fffaf9;
   --text-main: #4a2c2a;
@@ -107,8 +100,7 @@ body {
 .container {
   max-width: 900px; margin: 0 auto; background: var(--card-bg);
   border-radius: 16px; box-shadow: var(--modal-shadow);
-  padding: 16px;
-  transition: background 0.3s;
+  padding: 16px; transition: background 0.3s;
 }
 .header {
   display: flex; justify-content: space-between; align-items: center;
@@ -116,16 +108,11 @@ body {
 }
 .title-area { display: flex; align-items: center; gap: 10px; width: 100%; justify-content: space-between;}
 h1 { font-size: 20px; color: var(--text-main); transition: color 0.3s; }
-
-/* Выбор темы */
 .theme-select {
-  padding: 6px 10px; border-radius: 8px;
-  border: 1px solid var(--border-color);
+  padding: 6px 10px; border-radius: 8px; border: 1px solid var(--border-color);
   background: var(--input-bg); color: var(--text-main);
-  font-size: 13px; cursor: pointer; outline: none;
-  font-family: inherit;
+  font-size: 13px; cursor: pointer; outline: none; font-family: inherit;
 }
-
 .month-nav { display: flex; align-items: center; gap: 10px; width: 100%; justify-content: space-between; }
 .month-nav button {
   border: none; background: var(--btn-primary); color: #fff;
@@ -140,7 +127,7 @@ h1 { font-size: 20px; color: var(--text-main); transition: color 0.3s; }
   border: 1px solid var(--border-color); border-radius: 6px;
   padding: 4px; cursor: pointer; display: flex; flex-direction: column;
   justify-content: space-between; transition: 0.2s; background: var(--day-bg);
-  aspect-ratio: 1 / 1;
+  aspect-ratio: 1 / 1; overflow: hidden;
 }
 .day:hover { border-color: var(--btn-primary); }
 .day.empty { visibility: hidden; cursor: default; }
@@ -148,7 +135,8 @@ h1 { font-size: 20px; color: var(--text-main); transition: color 0.3s; }
 .day.has-data { background: var(--day-has-data); }
 .day.weekend { background: var(--day-weekend); }
 .day-num { font-weight: 600; font-size: 12px; color: var(--day-num-color); }
-.day-data { font-size: 9px; display: flex; flex-direction: column; gap: 1px; text-align: right; line-height: 1.1; }
+.day-data { font-size: 9px; display: flex; flex-direction: column; gap: 1px; text-align: right; line-height: 1.1; margin-top: 2px;}
+.day-time { color: var(--text-muted); font-size: 8px; text-align: left; line-height: 1;}
 .day-h { color: #2563eb; font-weight: 600; }
 [data-theme="dark"] .day-h { color: #60a5fa; }
 .night-h { color: #7c3aed; font-weight: 600; }
@@ -184,8 +172,15 @@ h1 { font-size: 20px; color: var(--text-main); transition: color 0.3s; }
 .modal h3 { font-size: 18px; margin-bottom: 16px; text-align: center; color: var(--text-main);}
 .field { margin-bottom: 14px; }
 .field label { display: block; font-size: 13px; color: var(--text-muted); margin-bottom: 6px; font-weight: 500; }
-.field input { width: 100%; padding: 12px; border: 2px solid var(--border-color); background: var(--input-bg); color: var(--text-main); border-radius: 8px; font-size: 16px; outline: none; transition: 0.2s; }
-.field input:focus { border-color: var(--btn-primary); }
+.field input[type="time"] { width: 100%; padding: 12px; border: 2px solid var(--border-color); background: var(--input-bg); color: var(--text-main); border-radius: 8px; font-size: 16px; outline: none; transition: 0.2s; }
+.field input[type="time"]:focus { border-color: var(--btn-primary); }
+
+.calc-preview {
+  background: var(--stat-bg); border-radius: 8px; padding: 10px;
+  margin-top: 10px; text-align: center; font-size: 13px; border: 1px solid var(--border-color);
+}
+.calc-preview b { font-size: 15px; }
+
 .modal-actions { display: flex; gap: 8px; margin-top: 20px; }
 .modal-actions button { flex: 1; padding: 12px 6px; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; transition: 0.2s; }
 .btn-primary { background: var(--btn-primary); color: #fff; }
@@ -205,6 +200,7 @@ h1 { font-size: 20px; color: var(--text-main); transition: color 0.3s; }
   .day { padding: 6px; min-height: 64px; aspect-ratio: auto; }
   .day-num { font-size: 14px; }
   .day-data { font-size: 11px; }
+  .day-time { font-size: 9px;}
   .summary { grid-template-columns: repeat(4, 1fr); gap: 12px; }
   .stat { padding: 16px; }
   .stat-label { font-size: 12px; }
@@ -220,7 +216,6 @@ h1 { font-size: 20px; color: var(--text-main); transition: color 0.3s; }
   <div class="header">
     <div class="title-area">
       <h1>📋 Табель учёта</h1>
-      <!-- Выбор темы -->
       <select class="theme-select" id="themeSelect">
         <option value="light">🌞 Светлая</option>
         <option value="dark">🌙 Тёмная</option>
@@ -268,17 +263,25 @@ h1 { font-size: 20px; color: var(--text-main); transition: color 0.3s; }
   </div>
 </div>
 
+<!-- Модальное окно ввода времени -->
 <div class="modal-overlay" id="modal">
   <div class="modal">
     <h3 id="modalTitle"></h3>
+    
     <div class="field">
-      <label>Дневные часы</label>
-      <input type="number" id="dayInput" min="0" max="24" step="0.5" value="0">
+      <label>Время начала смены</label>
+      <input type="time" id="startTime" step="900">
     </div>
+    
     <div class="field">
-      <label>Ночные часы</label>
-      <input type="number" id="nightInput" min="0" max="24" step="0.5" value="0">
+      <label>Время окончания смены</label>
+      <input type="time" id="endTime" step="900">
     </div>
+
+    <div class="calc-preview" id="calcPreview">
+      Выберите время для расчёта
+    </div>
+
     <div class="modal-actions">
       <button class="btn-danger" id="deleteBtn">Удалить</button>
       <button class="btn-secondary" id="cancelBtn">Отмена</button>
@@ -294,7 +297,6 @@ h1 { font-size: 20px; color: var(--text-main); transition: color 0.3s; }
   const firebaseConfig = {
     apiKey: "AIzaSyCOtlo_7bXqG1CRt6TgFY05a3XHnuG8r3s",
     authDomain: "my-timesheet-536eb.firebaseapp.com",
-    databaseURL: "https://my-timesheet-536eb-default-rtdb.europe-west1.firebasedatabase.app",
     projectId: "my-timesheet-536eb",
     storageBucket: "my-timesheet-536eb.firebasestorage.app",
     messagingSenderId: "638341755889",
@@ -307,16 +309,12 @@ h1 { font-size: 20px; color: var(--text-main); transition: color 0.3s; }
 
   // --- ЛОГИКА ТЕМ ---
   const themeSelect = document.getElementById('themeSelect');
-  // Проверяем, есть ли сохраненная тема в браузере
   const savedTheme = localStorage.getItem('timesheet_theme') || 'light';
   document.documentElement.setAttribute('data-theme', savedTheme);
   themeSelect.value = savedTheme;
-
-  // Меняем тему при выборе
   themeSelect.addEventListener('change', (e) => {
-    const newTheme = e.target.value;
-    document.documentElement.setAttribute('data-theme', newTheme);
-    localStorage.setItem('timesheet_theme', newTheme);
+    document.documentElement.setAttribute('data-theme', e.target.value);
+    localStorage.setItem('timesheet_theme', e.target.value);
   });
 
   // --- ЛОГИКА ТАБЕЛЯ ---
@@ -328,6 +326,7 @@ h1 { font-size: 20px; color: var(--text-main); transition: color 0.3s; }
   let viewMonth = currentDate.getMonth();
   let selectedKey = null;
   let data = {}; 
+  let tempCalc = { day: 0, night: 0 };
 
   async function saveToCloud() {
     try {
@@ -349,6 +348,65 @@ h1 { font-size: 20px; color: var(--text-main); transition: color 0.3s; }
 
   function key(y, m, d) { return `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`; }
   function round(n) { return Math.round(n * 100) / 100; }
+
+  // --- НОВАЯ ЛОГИКА РАСЧЕТА ---
+  // Если смена переходит через полночь (end <= start), все часы идут в ночные.
+  // Если смена заканчивается в тот же день (end > start), все часы идут в дневные.
+  function calculateHours(start, end) {
+    if (!start || !end) return { day: 0, night: 0, total: 0, type: 'none' };
+    
+    let [sh, sm] = start.split(':').map(Number);
+    let [eh, em] = end.split(':').map(Number);
+    
+    let startMins = sh * 60 + sm;
+    let endMins = eh * 60 + em;
+    
+    let totalMins = 0;
+    let isNightShift = false;
+    
+    if (endMins <= startMins) {
+      // Смена переходит через полночь (например, 20:00 -> 08:00)
+      totalMins = (24 * 60 - startMins) + endMins;
+      isNightShift = true;
+    } else {
+      // Смена в пределах одного дня (например, 08:00 -> 20:00)
+      totalMins = endMins - startMins;
+      isNightShift = false;
+    }
+    
+    let totalHours = totalMins / 60;
+    
+    return {
+      day: isNightShift ? 0 : totalHours,
+      night: isNightShift ? totalHours : 0,
+      total: totalHours,
+      type: isNightShift ? 'night' : 'day'
+    };
+  }
+
+  function updatePreview() {
+    const start = document.getElementById('startTime').value;
+    const end = document.getElementById('endTime').value;
+    const preview = document.getElementById('calcPreview');
+    
+    const res = calculateHours(start, end);
+    tempCalc = { day: res.day, night: res.night };
+    
+    if (res.total === 0) {
+      preview.innerHTML = 'Выберите время для расчёта';
+    } else {
+      let typeText = res.type === 'night' 
+        ? '<span style="color:#7c3aed;font-weight:bold;">🌙 Ночная смена</span>' 
+        : '<span style="color:#2563eb;font-weight:bold;">☀️ Дневная смена</span>';
+      
+      preview.innerHTML = `${typeText}<br>Итого: <b>${res.total} ч.</b><br>
+      <span style="color:#2563eb">День: ${res.day} ч.</span> | 
+      <span style="color:#7c3aed">Ночь: ${res.night} ч.</span>`;
+    }
+  }
+
+  document.getElementById('startTime').addEventListener('input', updatePreview);
+  document.getElementById('endTime').addEventListener('input', updatePreview);
 
   function render() {
     document.getElementById('monthTitle').textContent = `${monthNames[viewMonth]} ${viewYear}`;
@@ -393,7 +451,14 @@ h1 { font-size: 20px; color: var(--text-main); transition: color 0.3s; }
 
       const dataDiv = document.createElement('div');
       dataDiv.className = 'day-data';
+      
       if (rec) {
+        if (rec.start && rec.end) {
+           const timeStr = document.createElement('div');
+           timeStr.className = 'day-time';
+           timeStr.textContent = `${rec.start}-${rec.end}`;
+           dataDiv.appendChild(timeStr);
+        }
         if (rec.day > 0) {
           const s = document.createElement('div');
           s.className = 'day-h';
@@ -434,12 +499,14 @@ h1 { font-size: 20px; color: var(--text-main); transition: color 0.3s; }
 
   function openModal(d) {
     selectedKey = key(viewYear, viewMonth, d);
-    const rec = data[selectedKey] || { day: 0, night: 0 };
+    const rec = data[selectedKey] || { start: '08:00', end: '20:00', day: 0, night: 0 };
+    
     document.getElementById('modalTitle').textContent = `${d} ${monthNames[viewMonth].toLowerCase()} ${viewYear}`;
-    document.getElementById('dayInput').value = rec.day || 0;
-    document.getElementById('nightInput').value = rec.night || 0;
+    document.getElementById('startTime').value = rec.start || '08:00';
+    document.getElementById('endTime').value = rec.end || '20:00';
+    
+    updatePreview();
     document.getElementById('modal').classList.add('active');
-    setTimeout(() => document.getElementById('dayInput').focus(), 50);
   }
 
   function closeModal() {
@@ -449,10 +516,19 @@ h1 { font-size: 20px; color: var(--text-main); transition: color 0.3s; }
 
   document.getElementById('saveBtn').addEventListener('click', () => {
     if (!selectedKey) return;
-    const day = parseFloat(document.getElementById('dayInput').value) || 0;
-    const night = parseFloat(document.getElementById('nightInput').value) || 0;
-    if (day === 0 && night === 0) delete data[selectedKey];
-    else data[selectedKey] = { day, night };
+    const start = document.getElementById('startTime').value;
+    const end = document.getElementById('endTime').value;
+    
+    if (!start || !end || (tempCalc.day === 0 && tempCalc.night === 0)) {
+        delete data[selectedKey];
+    } else {
+        data[selectedKey] = { 
+            start: start, 
+            end: end, 
+            day: tempCalc.day, 
+            night: tempCalc.night 
+        };
+    }
     saveToCloud();
     closeModal();
   });
@@ -493,15 +569,15 @@ h1 { font-size: 20px; color: var(--text-main); transition: color 0.3s; }
 
   document.getElementById('exportBtn').addEventListener('click', () => {
     const prefix = `${viewYear}-${String(viewMonth+1).padStart(2,'0')}-`;
-    let csv = 'Дата;Дневные;Ночные;Всего\n';
+    let csv = 'Дата;Начало;Конец;Дневные;Ночные;Всего\n';
     let td = 0, tn = 0;
     const days = Object.keys(data).filter(k => k.startsWith(prefix)).sort();
     days.forEach(k => {
       const r = data[k];
       td += r.day || 0; tn += r.night || 0;
-      csv += `${k};${r.day || 0};${r.night || 0};${(r.day||0)+(r.night||0)}\n`;
+      csv += `${k};${r.start||''};${r.end||''};${r.day || 0};${r.night || 0};${(r.day||0)+(r.night||0)}\n`;
     });
-    csv += `ИТОГО;${td};${tn};${td+tn}\n`;
+    csv += `ИТОГО;;;${td};${tn};${td+tn}\n`;
     const blob = new Blob(["\ufeff" + csv], { type: 'text/csv;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -511,12 +587,6 @@ h1 { font-size: 20px; color: var(--text-main); transition: color 0.3s; }
     URL.revokeObjectURL(url);
   });
 
-  document.getElementById('dayInput').addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') document.getElementById('nightInput').focus();
-  });
-  document.getElementById('nightInput').addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') document.getElementById('saveBtn').click();
-  });
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
 
   render();
